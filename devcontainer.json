@@ -1,0 +1,24 @@
+{
+    "name": "prisma-dev-tools",
+    "image": "public.ecr.aws/k4r1m5v9/devcontainer:ubuntu",
+    "runArgs": [
+        "--env-file",
+        ".devcontainer/devcontainer.env"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode-remote.remote-containers",
+                "hashicorp.terraform",
+                "esbenp.prettier-vscode",
+                "PrismaCloud.prisma-cloud",
+                "ms-python.python"
+            ]
+        }
+    }
+}
+
+
+
+
+  
