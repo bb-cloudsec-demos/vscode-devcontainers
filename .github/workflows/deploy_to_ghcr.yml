@@ -1,0 +1,73 @@
+name: Build, Scan, and Push to GHCR
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+
+env:
+  # Use GitHub Container Registry (GHCR)
+  REGISTRY: ghcr.io
+  # Image name = <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Extract version from version.py
+      - name: Extract version from version.py
+        run: |
+          version=$(grep 'version = ' version.py | sed -E "s/version = \"([^\"]+)\"/\1/")
+          echo "APPLICATION_VERSION=$version" >> $GITHUB_ENV
+        
+      # Log in to GitHub Container Registry (GHCR)
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extract metadata (tags, labels) for Docker
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=raw,value=${{ env.APPLICATION_VERSION }}
+
+      # Build Docker image (WITHOUT pushing yet)
+      - name: Build Docker Image
+        id: build-image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+     
+      # Push Docker Image to GHCR (ONLY if scan is successful)
+      - name: Push Docker Image to GHCR
+        id: push-image
+        if: success()
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      # Output Image Digest
+      - name: Output Image Digest
+        id: output-digest
+        run: |
+          echo "Digest: ${{ steps.push-image.outputs.digest }}"
