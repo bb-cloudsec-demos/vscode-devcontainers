@@ -7,6 +7,13 @@ RUN apt-get update
 # Install base packages and dependencies
 RUN apt-get update && apt-get install -y \
     git \
+    bash \
+    sudo \
+    vim \
+    less \
+    iputils-ping \
+    net-tools \
+    openssh-client \
     python3 \
     python3-pip \
     apt-transport-https \
