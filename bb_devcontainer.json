@@ -1,0 +1,19 @@
+{
+    "name": "prisma-dev-tools",
+    "image": "ghcr.io/bb-cloudsec-demos/vscode-devcontainers:v0.0.1",
+    "runArgs": [
+        "--env-file",
+        ".devcontainer/devcontainer.env"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode-remote.remote-containers",
+                "hashicorp.terraform",
+                "esbenp.prettier-vscode",
+                "PrismaCloud.prisma-cloud",
+                "ms-python.python"
+            ]
+        }
+    }
+}
